@@ -62,7 +62,8 @@
         function getHerrentagDate(year) {
             const easterDate = getEasterDate(year);
             const herrentagDate = new Date(easterDate);
-            herrentagDate.setDate(easterDate.getDate() + 39); // 39 Tage nach Ostern
+            herrentagDate.setDate(easterDate.getDate() + 39); // 39 Tage nach Ostersonntag
+            herrentagDate.setHours(1, 1, 0, 0); // 01:01 Uhr
             return herrentagDate;
         }
 
@@ -107,3 +108,4 @@
     </script>
 </body>
 </html>
+
