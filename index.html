@@ -6,25 +6,42 @@
     <link rel="icon" href="favicon-32x32.png" type="image/png">
 
     <title>Countdown bis Herrentag</title>
+
     <style>
         body { 
             font-family: 'Arial', sans-serif;
             text-align: center;
             padding: 20px;
-            background: linear-gradient(to right, #880101, #3a3a3a);
             color: #f0f0f0;
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            background: linear-gradient(to right, #880101, #302d2d);
+            overflow: hidden;
         }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: url('logo.png') no-repeat center center fixed;
+            background-size: contain;
+            filter: blur(10px);
+            opacity: 0.4; /* Damit es dezent aussieht */
+            z-index: -1;
+        }
+
         h1 {
             font-size: 4em;
             margin-bottom: 20px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
+
         #countdown {
             font-size: 4em;
             font-weight: bold;
@@ -36,6 +53,8 @@
     </style>
 </head>
 <body>
+    <div class="background"></div>
+
     <h1>Countdown bis Herrentag 🍻</h1>
     <div id="countdown">⏳ Warten Auf Fleischmadenabrieb...</div>
 
@@ -43,7 +62,7 @@
         function getHerrentagDate(year) {
             const easterDate = getEasterDate(year);
             const herrentagDate = new Date(easterDate);
-            herrentagDate.setDate(easterDate.getDate() + 39); // 39 Tage nach Ostersonntag
+            herrentagDate.setDate(easterDate.getDate() + 39); // 39 Tage nach Ostern
             return herrentagDate;
         }
 
@@ -74,8 +93,7 @@
                 herrentag = getHerrentagDate(year + 1); // Nächstes Jahr, falls Herrentag schon vorbei ist
             }
 
-            const localTime = herrentag.getTime() - (new Date().getTimezoneOffset() * 60000); // Zeitzonen-Offset berücksichtigen
-            const timeLeft = localTime - now.getTime();
+            const timeLeft = herrentag.getTime() - now.getTime();
 
             const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
             const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
