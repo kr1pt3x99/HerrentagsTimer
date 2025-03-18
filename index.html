@@ -31,7 +31,7 @@
             background: url('logo.png') no-repeat center center fixed;
             background-size: contain;
             filter: blur(10px);
-            opacity: 0.4; /* Damit es dezent aussieht */
+            opacity: 0.4;
             z-index: -1;
         }
 
@@ -43,22 +43,42 @@
         }
 
         #countdown {
-            font-size: 4em;
+            font-size: 3.5em;
             font-weight: bold;
             background-color: rgba(28, 28, 48, 0.6);
             padding: 20px 40px;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(12, 0, 66, 0.8);
         }
+
+        #music-controls {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+            background: #610101;
+            color: white;
+        }
+
+        button:hover {
+            background: #4f0101;
+        }
+
         @media (max-width: 768px) {
             h1 {
-                font-size: 1em;
+                font-size: 2em;
             }
             #countdown {
                 font-size: 1.5em;
                 padding: 10px 20px;
             }
-        }        
+        }
     </style>
 </head>
 <body>
@@ -67,12 +87,44 @@
     <h1>Countdown bis Herrentag 🍻</h1>
     <div id="countdown">⏳ Warten Auf Fleischmadenabrieb...</div>
 
+    <audio id="background-music" loop>
+        <source src="PBC.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="music-controls">
+        <button onclick="playMusic()">▶ Musik starten</button>
+        <button onclick="document.getElementById('background-music').pause()">⏸ Musik stoppen</button>
+    </div>
+
     <script>
+        let musicStarted = false;
+        let userInteracted = true;
+
+        function playMusic() {
+            let audio = document.getElementById("background-music");
+            audio.volume = 0.2;
+            let playPromise = audio.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("Musik spielt!");
+                    musicStarted = true;
+                }).catch(() => {
+                    console.log("Autoplay blockiert. Button bleibt.");
+                });
+            }
+        }
+
+        // Erkennt erste Benutzerinteraktion
+        document.addEventListener("click", function() {
+            userInteracted = true;
+        });
+
         function getHerrentagDate(year) {
             const easterDate = getEasterDate(year);
             const herrentagDate = new Date(easterDate);
-            herrentagDate.setDate(easterDate.getDate() + 39); // 39 Tage nach Ostersonntag
-            herrentagDate.setHours(1, 1, 0, 0); // 01:01 Uhr
+            herrentagDate.setDate(easterDate.getDate() + 39);
+            herrentagDate.setHours(1, 1, 0, 0);
             return herrentagDate;
         }
 
@@ -100,7 +152,7 @@
             let herrentag = getHerrentagDate(year);
 
             if (now > herrentag) {
-                herrentag = getHerrentagDate(year + 1); // Nächstes Jahr, falls Herrentag schon vorbei ist
+                herrentag = getHerrentagDate(year + 1);
             }
 
             const timeLeft = herrentag.getTime() - now.getTime();
@@ -111,6 +163,11 @@
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
             document.getElementById('countdown').innerHTML = `🕒 ${days} Tage, ${hours} Stunden, ${minutes} Minuten, ${seconds} Sekunden`;
+
+            // Musik nur starten, wenn eine Interaktion da war
+            if (!musicStarted && userInteracted) {
+                playMusic();
+            }
         }
 
         setInterval(updateCountdown, 1000);
