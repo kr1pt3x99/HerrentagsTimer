@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon-32x32.png" type="image/png">
-
     <title>Countdown bis Herrentag</title>
 
     <style>
@@ -49,10 +48,12 @@
             padding: 20px 40px;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(12, 0, 66, 0.8);
+            display: none; /* Erst ausblenden */
         }
 
         #music-controls {
             margin-top: 20px;
+            display: none; /* Erst ausblenden */
         }
 
         button {
@@ -70,6 +71,34 @@
             background: #4f0101;
         }
 
+        /* Overlay */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 2em;
+            z-index: 1000;
+        }
+
+        #overlay p {
+            margin-bottom: 20px;
+        }
+
+        #overlay button {
+            font-size: 1.5em;
+            padding: 15px 30px;
+            background: #ff4500;
+            border-radius: 10px;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2em;
@@ -84,12 +113,17 @@
 <body>
     <div class="background"></div>
 
+    <!-- Overlay -->
+    <div id="overlay">
+        <p>Countdown berechnen...</p>
+        <button onclick="startApp()">Starten</button>
+    </div>
+
     <h1>Countdown bis Herrentag 🍻</h1>
     <div id="countdown">⏳ Warten Auf Fleischmadenabrieb...</div>
 
     <audio id="background-music" loop>
         <source src="PBC.mp3" type="audio/mpeg">
-        <source src="PBC.ogg" type="audio/ogg">
     </audio>
 
     <div id="music-controls">
@@ -99,7 +133,23 @@
 
     <script>
         let musicStarted = false;
-        let userInteracted = true;
+
+        function startApp() {
+            let overlay = document.getElementById("overlay");
+            overlay.innerHTML = "<p>Berechne Fleischmadenabrieb...</p>"; // Zeigt einen Lade-Text an
+
+            setTimeout(() => {
+                // Overlay ausblenden
+                overlay.style.display = "none";
+
+                // Countdown und Musiksteuerung einblenden
+                document.getElementById("countdown").style.display = "block";
+                document.getElementById("music-controls").style.display = "block";
+
+                // Musik starten
+                playMusic();
+            }, 500); // 2 Sekunden Ladezeit
+        }
 
         function playMusic() {
             let audio = document.getElementById("background-music");
@@ -111,15 +161,10 @@
                     console.log("Musik spielt!");
                     musicStarted = true;
                 }).catch(() => {
-                    console.log("Autoplay blockiert. Button bleibt.");
+                    console.log("Autoplay blockiert.");
                 });
             }
         }
-
-        // Erkennt erste Benutzerinteraktion
-        document.addEventListener("click", function() {
-            userInteracted = true;
-        });
 
         function getHerrentagDate(year) {
             const easterDate = getEasterDate(year);
@@ -164,11 +209,6 @@
             const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
             document.getElementById('countdown').innerHTML = `🕒 ${days} Tage, ${hours} Stunden, ${minutes} Minuten, ${seconds} Sekunden`;
-
-            // Musik nur starten, wenn eine Interaktion da war
-            if (!musicStarted && userInteracted) {
-                playMusic();
-            }
         }
 
         setInterval(updateCountdown, 1000);
